@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 from aiohttp import ClientSession, ClientTimeout
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from . import _rn_ax
+from . import _fork
 from .const import DOMAIN, MIN_TIME_BETWEEN_UPDATES
 
 if TYPE_CHECKING:
@@ -50,7 +50,7 @@ class HealthchecksioDataUpdateCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Update data."""
-        check_url = _rn_ax.ping_url(
+        check_url = _fork.ping_url(
             check=self._check_id,
             self_hosted=self._self_hosted,
             site_root=self._site_root,

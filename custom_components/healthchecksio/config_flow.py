@@ -12,7 +12,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from . import _rn_ax
+from . import _fork
 from .const import DOMAIN, OFFICIAL_SITE_ROOT
 
 LOGGER = getLogger(__name__)
@@ -75,11 +75,14 @@ class BlueprintFlowHandler(config_entries.ConfigFlow):
             if "self_hosted" in user_input:
                 self_hosted = user_input["self_hosted"]
 
-        data_schema = _rn_ax.build_user_data_schema(
+        data_schema = _fork.build_user_data_schema(
             name=name, api_key=api_key, check=check, self_hosted=self_hosted
         )
         return self.async_show_form(
-            step_id="user", data_schema=data_schema, errors=self._errors
+            step_id="user",
+            data_schema=data_schema,
+            errors=self._errors,
+            description_placeholders={"docs_url": _fork.DOCS_URL},
         )
 
     async def async_step_self_hosted(self, user_input):
@@ -119,6 +122,7 @@ class BlueprintFlowHandler(config_entries.ConfigFlow):
             step_id="self_hosted",
             data_schema=vol.Schema(data_schema),
             errors=self._errors,
+            description_placeholders={"docs_url": _fork.DOCS_URL},
         )
 
     async def _test_credentials(
@@ -130,7 +134,7 @@ class BlueprintFlowHandler(config_entries.ConfigFlow):
         session = async_get_clientsession(self.hass, verify_ssl)
         timeout10 = aiohttp.ClientTimeout(total=10)
         headers = {"X-Api-Key": api_key}
-        check_url = _rn_ax.ping_url(
+        check_url = _fork.ping_url(
             check=check,
             self_hosted=self_hosted,
             site_root=site_root,

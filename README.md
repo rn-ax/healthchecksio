@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > **This is a fork of [custom-components/healthchecksio](https://github.com/custom-components/healthchecksio).** Why: Healthchecks.io scopes each API key to a single project, but upstream only allows one config entry ever, so an account with checks spread across multiple projects can only ever monitor one of them. Upstream tracks this as [#217](https://github.com/custom-components/healthchecksio/issues/217) (open since 2026-07-27, no maintainer engagement; an earlier duplicate, [#36](https://github.com/custom-components/healthchecksio/issues/36), was closed as "working as intended"). **Drop this fork and switch back to upstream if #217 ever lands.**
 >
-> Changes from upstream (kept isolated in [`custom_components/healthchecksio/_rn_ax.py`](custom_components/healthchecksio/_rn_ax.py) to minimize merge conflicts — update this list whenever that changes):
+> Changes from upstream (kept isolated in [`custom_components/healthchecksio/_fork.py`](custom_components/healthchecksio/_fork.py) to minimize merge conflicts — update this list whenever that changes):
 > - Removed the single-instance restriction, so each Healthchecks.io project can be added as its own config entry.
 > - Made the "Check ID" field optional, so a project-only entry doesn't have to self-ping a check that isn't meant for Home Assistant.
 > - Added a required "Project name" field, used as each entry's title (upstream used `check` for this, which is no longer always set).

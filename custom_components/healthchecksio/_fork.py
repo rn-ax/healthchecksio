@@ -1,9 +1,10 @@
-"""rn-ax fork additions on top of custom-components/healthchecksio.
+"""
+rn-ax fork additions on top of custom-components/healthchecksio.
 
 Kept in its own module rather than inlined into the upstream files so a
 future `git merge upstream/main` only has to reconcile the (few) call sites
-in config_flow.py/coordinator.py, not logic living inside them. See
-FORK.md for what's changed and why.
+in config_flow.py/coordinator.py, not logic living inside them. See the
+README's "About this fork" note for what's changed and why.
 """
 
 from __future__ import annotations
@@ -12,11 +13,14 @@ from collections import OrderedDict
 
 import voluptuous as vol
 
+DOCS_URL = "https://github.com/rn-ax/healthchecksio"
+
 
 def build_user_data_schema(
     *, name: str, api_key: str, check: str, self_hosted: bool
 ) -> vol.Schema:
-    """Schema for the user step.
+    """
+    Schema for the user step.
 
     Adds a required `name` field (used as the config entry's title, since
     `check` -- upstream's title source -- is no longer always present) and
@@ -38,7 +42,8 @@ def ping_url(
     site_root: str,
     ping_endpoint: str | None,
 ) -> str | None:
-    """URL to ping for this check, or None if no check is configured.
+    """
+    URL to ping for this check, or None if no check is configured.
 
     A project entry added only to expose sensors (not to report this Home
     Assistant instance's own liveness) has no check to ping at all.

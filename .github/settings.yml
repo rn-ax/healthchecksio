@@ -3,5 +3,4 @@ _extends: poppycock
 repository:
   name: healthchecksio
   description: Home Assistant integration for healthchecks.io -- rn-ax fork adding multi-project support
-  has_issues: true
   private: false

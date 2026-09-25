@@ -12,6 +12,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
+from . import _rn_ax
 from .const import DOMAIN, OFFICIAL_SITE_ROOT
 
 LOGGER = getLogger(__name__)
@@ -32,10 +33,6 @@ class BlueprintFlowHandler(config_entries.ConfigFlow):
     async def async_step_user(self, user_input=None):
         """Handle a flow initialized by the user."""
         self._errors = {}
-        if self._async_current_entries():
-            return self.async_abort(reason="single_instance_allowed")
-        if self.hass.data.get(DOMAIN):
-            return self.async_abort(reason="single_instance_allowed")
 
         if user_input is not None:
             if user_input["self_hosted"]:
@@ -45,7 +42,7 @@ class BlueprintFlowHandler(config_entries.ConfigFlow):
             else:
                 valid = await self._test_credentials(
                     user_input["api_key"],
-                    user_input["check"],
+                    user_input.get("check"),
                     False,
                     OFFICIAL_SITE_ROOT,
                     None,
@@ -53,7 +50,7 @@ class BlueprintFlowHandler(config_entries.ConfigFlow):
                 if valid:
                     user_input["self_hosted"] = False
                     return self.async_create_entry(
-                        title=user_input["check"], data=user_input
+                        title=user_input["name"], data=user_input
                     )
                 else:
                     self._errors["base"] = "auth"
@@ -63,11 +60,14 @@ class BlueprintFlowHandler(config_entries.ConfigFlow):
     async def _show_initial_config_form(self, user_input):
         """Show the configuration form to edit check data."""
         # Defaults
+        name = ""
         api_key = ""
         check = ""
         self_hosted = False
 
         if user_input is not None:
+            if "name" in user_input:
+                name = user_input["name"]
             if "api_key" in user_input:
                 api_key = user_input["api_key"]
             if "check" in user_input:
@@ -75,12 +75,11 @@ class BlueprintFlowHandler(config_entries.ConfigFlow):
             if "self_hosted" in user_input:
                 self_hosted = user_input["self_hosted"]
 
-        data_schema = OrderedDict()
-        data_schema[vol.Required("api_key", default=api_key)] = str
-        data_schema[vol.Required("check", default=check)] = str
-        data_schema[vol.Required("self_hosted", default=self_hosted)] = bool
+        data_schema = _rn_ax.build_user_data_schema(
+            name=name, api_key=api_key, check=check, self_hosted=self_hosted
+        )
         return self.async_show_form(
-            step_id="user", data_schema=vol.Schema(data_schema), errors=self._errors
+            step_id="user", data_schema=data_schema, errors=self._errors
         )
 
     async def async_step_self_hosted(self, user_input):
@@ -88,7 +87,7 @@ class BlueprintFlowHandler(config_entries.ConfigFlow):
         self._errors = {}
         valid = await self._test_credentials(
             self.initial_data["api_key"],
-            self.initial_data["check"],
+            self.initial_data.get("check"),
             True,
             user_input["site_root"],
             user_input["ping_endpoint"],
@@ -96,7 +95,7 @@ class BlueprintFlowHandler(config_entries.ConfigFlow):
         if valid:
             # merge data from initial config flow and this flow
             data = {**self.initial_data, **user_input}
-            return self.async_create_entry(title=self.initial_data["check"], data=data)
+            return self.async_create_entry(title=self.initial_data["name"], data=data)
         else:
             self._errors["base"] = "auth"
 
@@ -131,22 +130,29 @@ class BlueprintFlowHandler(config_entries.ConfigFlow):
         session = async_get_clientsession(self.hass, verify_ssl)
         timeout10 = aiohttp.ClientTimeout(total=10)
         headers = {"X-Api-Key": api_key}
-        if self_hosted:
-            check_url = f"{site_root}/{ping_endpoint}/{check}"
-        else:
-            check_url = f"https://hc-ping.com/{check}"
-        await asyncio.sleep(1)  # needed for self-hosted instances
-        try:
-            check_response = await session.get(check_url, timeout=timeout10)
-        except (TimeoutError, aiohttp.ClientError):
-            LOGGER.exception("Could Not Send Check")
-            return False
-        else:
-            if check_response.ok:
-                LOGGER.debug("Send Check HTTP Status Code: %s", check_response.status)
-            else:
-                LOGGER.error("Send Check HTTP Status Code: %s", check_response.status)
+        check_url = _rn_ax.ping_url(
+            check=check,
+            self_hosted=self_hosted,
+            site_root=site_root,
+            ping_endpoint=ping_endpoint,
+        )
+        if check_url:
+            await asyncio.sleep(1)  # needed for self-hosted instances
+            try:
+                check_response = await session.get(check_url, timeout=timeout10)
+            except (TimeoutError, aiohttp.ClientError):
+                LOGGER.exception("Could Not Send Check")
                 return False
+            else:
+                if check_response.ok:
+                    LOGGER.debug(
+                        "Send Check HTTP Status Code: %s", check_response.status
+                    )
+                else:
+                    LOGGER.error(
+                        "Send Check HTTP Status Code: %s", check_response.status
+                    )
+                    return False
         try:
             request = await session.get(
                 f"{site_root}/api/v1/checks/", headers=headers, timeout=timeout10

@@ -1,5 +1,13 @@
 # healthchecksio
 
+> [!IMPORTANT]
+> **This is a fork of [custom-components/healthchecksio](https://github.com/custom-components/healthchecksio).** Why: Healthchecks.io scopes each API key to a single project, but upstream only allows one config entry ever, so an account with checks spread across multiple projects can only ever monitor one of them. Upstream tracks this as [#217](https://github.com/custom-components/healthchecksio/issues/217) (open since 2026-07-27, no maintainer engagement; an earlier duplicate, [#36](https://github.com/custom-components/healthchecksio/issues/36), was closed as "working as intended"). **Drop this fork and switch back to upstream if #217 ever lands.**
+>
+> Changes from upstream (kept isolated in [`custom_components/healthchecksio/_rn_ax.py`](custom_components/healthchecksio/_rn_ax.py) to minimize merge conflicts — update this list whenever that changes):
+> - Removed the single-instance restriction, so each Healthchecks.io project can be added as its own config entry.
+> - Made the "Check ID" field optional, so a project-only entry doesn't have to self-ping a check that isn't meant for Home Assistant.
+> - Added a required "Project name" field, used as each entry's title (upstream used `check` for this, which is no longer always set).
+
 [![GitHub Release][releases-shield]][releases]
 [![GitHub Activity][commits-shield]][commits]
 [![License][license-shield]](LICENSE.md)
@@ -21,16 +29,20 @@ Search for and install `healthchecksio` from [HACS](https://hacs.xyz/)
 
 ## Configuration
 
-This integration can **only** be configured via the UI.
+This integration can **only** be configured via the UI. Add it once per Healthchecks.io project — each project has its own API key.
+
+### Project name
+
+A label for this project, used as the config entry's title so multiple entries (one per project) are distinguishable in Settings → Devices & Services.
 
 ### Check ID
 
-This is the ID of the check that the integration should update. It looks something like `aa247c51-8da8-4800-86a3-48763142e902`.
+Optional. The ID of a check that this Home Assistant instance should ping every 5 minutes to report its own liveness. Looks something like `aa247c51-8da8-4800-86a3-48763142e902`. Leave blank for a project entry that's only there to expose its checks as entities.
 
 ### What the integration does
 
-- Pings the specified Healthchecks.io check every 5 minutes to monitor the state of Home Assistant.
-- Pulls your other Healthchecks.io checks as entities, so you can monitor their statuses directly in Home Assistant.
+- If a Check ID is set, pings that Healthchecks.io check every 5 minutes to monitor the state of Home Assistant.
+- Pulls all of this project's Healthchecks.io checks as entities, so you can monitor their statuses directly in Home Assistant.
 
 ### API Key
 

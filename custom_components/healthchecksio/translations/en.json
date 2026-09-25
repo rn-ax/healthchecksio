@@ -5,8 +5,9 @@
                 "title": "Healthchecks.io",
                 "description": "If you need help with the configuration have a look here: https://github.com/custom-components/healthchecksio",
                 "data": {
+                    "name": "Project name",
                     "api_key": "API key",
-                    "check": "Check ID",
+                    "check": "Check ID to ping (optional, reports this Home Assistant instance as up)",
                     "self_hosted": "Use self-hosted instance"
                 }
             },
@@ -21,9 +22,6 @@
         },
         "error": {
             "auth": "API Key, Check ID, Site root or Ping endpoint is wrong."
-        },
-        "abort": {
-            "single_instance_allowed": "Only a single configuration of Blueprint is allowed."
         }
     }
 }

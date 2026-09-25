@@ -2,11 +2,11 @@
   "domain": "healthchecksio",
   "name": "Healthchecks.io",
   "codeowners": [
-    "@ludeeus"
+    "@rutinerad"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/custom-components/healthchecksio",
+  "documentation": "https://github.com/rn-ax/healthchecksio",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/custom-components/healthchecksio/issues",
-  "version": "100.0.0"
+  "issue_tracker": "https://github.com/rn-ax/healthchecksio/issues",
+  "version": "100.1.0"
 }

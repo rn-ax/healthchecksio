@@ -41,7 +41,7 @@ async def async_setup_entry(
             verify_ssl=not self_hosted or site_root.startswith("https"),
         ),
         self_hosted=self_hosted,
-        check_id=config_entry.data["check"],
+        check_id=config_entry.data.get("check"),
         site_root=site_root,
         ping_endpoint=config_entry.data.get("ping_endpoint"),
     )

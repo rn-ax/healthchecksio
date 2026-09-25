@@ -12,7 +12,7 @@ PLATFORMS = [
     Platform.BINARY_SENSOR,
 ]
 
-ISSUE_URL = "https://github.com/rn-ax/healthchecksio/issues"
+ISSUE_URL = "https://github.com/custom-components/healthchecksio/issues"
 ATTRIBUTION = "Data from this is provided by healthchecks.io."
 
 BINARY_SENSOR_DEVICE_CLASS = "connectivity"

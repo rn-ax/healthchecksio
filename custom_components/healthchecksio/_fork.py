@@ -13,7 +13,7 @@ from collections import OrderedDict
 
 import voluptuous as vol
 
-DOCS_URL = "https://github.com/rn-ax/healthchecksio"
+DOCS_URL = "https://github.com/rn-ax/ha-healthchecksio"
 
 
 def build_user_data_schema(
